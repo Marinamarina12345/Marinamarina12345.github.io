@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #f6f6f6;
+  border: 1px solid #f6f6f6;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.gray {
+  color: #8a8a8a;
+}
+
+.black {
+  color: #000;
+}
+
+</style>
+</head>
+<body>
+
+<div class="widget">
+  <div>
+    <span class="gray">Thinking about :</span>
+    <span class="black">Mountains or sea?</span>
+  </div>
+
+  <div>
+    <span class="gray">Time :</span>
+    <span class="black" id="time"></span>
+  </div>
+
+  <div>
+    <span class="gray">Last visitor :</span>
+    <span class="black" id="visitor">Loading...</span>
+  </div>
+</div>
+
+<script>
+// ВСТАВЬ СЮДА URL ИЗ GOOGLE SCRIPT
+const scriptURL = "https://script.google.com/macros/library/d/1QE-gVf38NK-vNVtwL4BKZq4UGrHwjdPpdCTeAwbdnGf-P6b2QBZ99XAI/2";
+
+// текущее время
+function updateTime() {
+  const now = new Date();
+  document.getElementById("time").textContent =
+    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// получаем город и страну
+fetch("https://ipapi.co/json/")
+  .then(res => res.json())
+  .then(data => {
+    const city = data.city;
+    const country = data.country_name;
+
+    document.getElementById("visitor").textContent =
+      city + ", " + country;
+
+    // отправка в Google Sheets
+    fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify({
+        city: city,
+        country: country
+      })
+    });
+  });
+</script>
+
+</body>
+</html>
